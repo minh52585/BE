@@ -1,4 +1,5 @@
 const Product = require("../models/product.model");
+//getall
 export const getAllProducts = async () => {
 	try {
 		const products = await Product.find();
@@ -7,3 +8,54 @@ export const getAllProducts = async () => {
 		next(error);
 	}
 };
+
+//getbyid
+export const getProductById = async (req, res, next) => {
+	try {
+		const product = await Product.findById(req.params.id);
+		if (!product) {
+			return res.status(404).json({ success: false, message: "Product not found" });
+		}
+		res.json({ success: true, data: product });
+	} catch (error) {
+		next(error);
+	}
+};
+
+//create
+export const createProduct = async (req, res, next) => {
+	try {
+		const newProduct = new Product(req.body);
+		await newProduct.save();
+		res.status(201).json({ success: true, data: newProduct });
+	} catch (error) {
+		next(error);
+	}
+};
+
+//update
+export const updateProduct = async (req, res, next) => {
+	try {
+		const updatedProduct = await Product.findByIdAndUpdate(req.params.id, req.body, { new: true });
+		if (!updatedProduct) {
+			return res.status(404).json({ success: false, message: "Product not found" });
+		}
+	} catch (error) {
+		next(error);
+	}
+}
+
+//delete
+export const deleteProduct = async (req, res, next) => {
+	try {
+		const deletedProduct = await Product.findByIdAndDelete(req.params.id);
+		if (!deletedProduct) {
+			return res.status(404).json({ success: false, message: "Product not found" });
+		}
+		res.json({ success: true, message: "Product deleted successfully" });
+	} catch (error) {
+		next(error);
+	}
+};
+
+
