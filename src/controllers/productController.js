@@ -1,6 +1,6 @@
 const Product = require("../models/product.model");
 //getall
-export const getAllProducts = async () => {
+export const getAllProducts = async (res, req, next) => {
 	try {
 		const products = await Product.find();
 		res.json({ success: true, data: products });
@@ -14,7 +14,7 @@ export const getProductById = async (req, res, next) => {
 	try {
 		const product = await Product.findById(req.params.id);
 		if (!product) {
-			return res.status(404).json({ success: false, message: "Product not found" });
+			return res.status(404).json({ success: false, message: "Không tìm thấy sản phẩm" });
 		}
 		res.json({ success: true, data: product });
 	} catch (error) {

@@ -17,18 +17,24 @@ const productSchema = new mongoose.Schema({
     imageUrl: {
         type: String,
     },
-    rating: {
+    stock: {
         type: Number,
         default: 0,
     },
-    reviews: [
-        {
-            userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-            comment: String,
-            rating: Number,
-            date: { type: Date, default: Date.now },
-        },
-    ],
+    status: {
+        type: String,
+        enum: ['available', 'out of stock'],
+        default: 'available',
+    },
+    createdAt: {
+        type: Date,
+        default: Date.now,
+    },
+    updatedAt: {
+        type: Date,
+        default: Date.now,
+    }
+
 });
 
 module.exports = mongoose.model('Product', productSchema);
