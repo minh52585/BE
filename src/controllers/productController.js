@@ -1,14 +1,14 @@
-import Product from "../models/product.model.js";
+import Product from "../models/Product.js";
+
 
 // getall
-export const getAllProducts = async (_unused, res, next) => {
+export const getAllProducts = async (req, res, next) => {
 	try {
 		const products = await Product.find();
 		res.json({ success: true, data: products });
 	} catch (error) {
 		next(error);
 	}
-
 };
 
 // getbyid
@@ -37,7 +37,7 @@ export const addProduct = async (req, res, next) => {
 	} catch (error) {
 		next(error);
 	}
-};
+}
 
 // update
 export const updateProduct = async (req, res, next) => {
@@ -58,7 +58,7 @@ export const updateProduct = async (req, res, next) => {
 	} catch (error) {
 		next(error);
 	}
-};
+}
 
 // delete
 export const deleteProduct = async (req, res, next) => {
@@ -73,4 +73,8 @@ export const deleteProduct = async (req, res, next) => {
 	} catch (error) {
 		next(error);
 	}
-};
+}
+
+
+
+
