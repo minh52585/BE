@@ -21,6 +21,7 @@
     │   └── validBodyRequest.js
     ├── models
     ├── routes
+    │   ├── product.routes.js
     │   └── index.js
     ├── schemas
     └── utils
