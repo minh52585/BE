@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
-import User from '../models/User.js'; // nhớ thêm .js nếu dùng ES modules
+import User from '../models/User.js'; 
 
 const authController = {
   register: async (req, res) => {
@@ -67,6 +67,70 @@ const authController = {
       res.status(500).json({ message: 'Lỗi server', error });
     }
   },
+
+  updateUser: async (req, res) => {
+  const { id } = req.params;
+  const { fullname, phoneNumber, address } = req.body;
+
+  try {
+    const updatedUser = await User.findByIdAndUpdate(
+      id,
+      { fullname, phoneNumber, address },
+      { new: true }
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: 'Người dùng không tồn tại' });
+    }
+
+    res.json({ message: 'Cập nhật thành công', user: updatedUser });
+  } catch (error) {
+    res.status(500).json({ message: 'Lỗi server', error });
+  }
+},
+
+
+deleteUser: async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const deletedUser = await User.findByIdAndDelete(id);
+
+    if (!deletedUser) {
+      return res.status(404).json({ message: 'Người dùng không tồn tại' });
+    }
+
+    res.json({ message: 'Xóa người dùng thành công' });
+  } catch (error) {
+    res.status(500).json({ message: 'Lỗi server', error });
+  }
+},
+
+getAllUsers: async (req, res) => {
+  try {
+    const users = await User.find().select("-password"); // Ẩn mật khẩu
+    res.json(users);
+  } catch (error) {
+    res.status(500).json({ message: 'Lỗi server', error });
+  }
+},
+getUserById: async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const user = await User.findById(id).select("-password");
+
+    if (!user) {
+      return res.status(404).json({ message: 'Không tìm thấy người dùng' });
+    }
+
+    res.json(user);
+  } catch (error) {
+    res.status(500).json({ message: 'Lỗi server', error });
+  }
+},
+
+
 };
 
 export default authController;
