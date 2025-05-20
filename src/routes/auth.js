@@ -14,7 +14,7 @@ router.get('/users', authController.getAllUsers);
 router.get('/users/:id', authController.getUserById);
 // Update người dùngdùng
 router.put('/users/:id', authController.updateUser);
-// Xóa người dùng
+// Xóa người dùng       
 router.delete('/users/:id', authController.deleteUser);
 
 
