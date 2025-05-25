@@ -1,25 +1,31 @@
 import nodemailer from "nodemailer";
-import { EMAIL_PASSWORD, EMAIL_USERNAME } from "../configs/enviroments.js";
 
 export const sendEmail = async (email, subject, text) => {
-	try {
-		const transporter = nodemailer.createTransport({
-			service: "gmail",
-			auth: {
-				user: EMAIL_USERNAME,
-				pass: EMAIL_PASSWORD,
-			},
-		});
+  try {
+   
 
-		const mailOptions = {
-			from: EMAIL_USERNAME,
-			to: email,
-			subject: subject,
-			text: text,
-		};
+    const transporter = nodemailer.createTransport({
+      host: "smtp.gmail.com",
+      service: "gmail",
+      port: 587,
+      secure: false, // true for 465, false for other ports
+      auth: {
+        user: process.env.EMAIL_USERNAME,
+        pass: process.env.EMAIL_PASSWORD,
+      },
+    });
 
-		await transporter.sendMail(mailOptions);
-	} catch (error) {
-		throw new Error("Error sending email: " + error.message);
-	}
+    const mailOptions = {
+      from: `CodeFarm Support <${process.env.EMAIL_USERNAME}>`,
+      to: email,
+      subject,
+      text,
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+    console.log("Email sent: ", info.response);
+  } catch (error) {
+    console.error("Lỗi gửi email:", error);
+    throw new Error("Error sending email: " + error.message);
+  }
 };

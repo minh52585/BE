@@ -1,6 +1,16 @@
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import User from "../models/User.js";
+import { sendEmail } from "../utils/sendMail.js";
+
+import {
+  RESET_PASSWORD_SECRET,
+  RESET_PASSWORD_EXPIRES,
+  FRONTEND_URL,
+} from "../configs/enviroments.js";
+
+
+
 
 const authController = {
   register: async (req, res) => {
@@ -49,6 +59,7 @@ const authController = {
           userId: user._id,
           email: user.email,
           fullname: user.fullname,
+          role: user.role, // ✅ Bắt buộc để isAdmin hoạt động
         },
         process.env.JWT_SECRET,
         { expiresIn: "1h" }
@@ -65,6 +76,56 @@ const authController = {
       });
     } catch (error) {
       res.status(500).json({ message: "Lỗi server", error });
+    }
+  },
+
+  forgotPassword: async (req, res) => {
+    const { email } = req.body;
+
+    try {
+      const user = await User.findOne({ email });
+      if (!user) {
+        return res.status(404).json({ message: "Email không tồn tại" });
+      }
+
+      const token = jwt.sign({ id: user._id }, RESET_PASSWORD_SECRET, {
+        expiresIn: RESET_PASSWORD_EXPIRES,
+      });
+
+      const resetLink = `${FRONTEND_URL}/reset-password?token=${token}`;
+
+      await sendEmail(
+        email,
+        "Đặt lại mật khẩu",
+        `Click vào link sau để đặt lại mật khẩu: ${resetLink}`
+      );
+
+      res
+        .status(200)
+        .json({ message: "Link đặt lại mật khẩu đã được gửi qua email" });
+    } catch (error) {
+      res.status(500).json({ message: "Lỗi server", error });
+    }
+  },
+
+  resetPassword: async (req, res) => {
+    const { token } = req.params;
+    const { newPassword } = req.body;
+
+    try {
+      const decoded = jwt.verify(token, RESET_PASSWORD_SECRET);
+      const user = await User.findById(decoded.id);
+
+      if (!user) {
+        return res.status(404).json({ message: "Người dùng không tồn tại" });
+      }
+
+      user.password = await bcrypt.hash(newPassword, 10);
+      await user.save();
+
+      res.status(200).json({ message: "Mật khẩu đã được cập nhật" });
+    } catch (error) {
+      res.status(400).json({ message: "Token không hợp lệ hoặc đã hết hạn" });
     }
   },
 
@@ -107,12 +168,13 @@ const authController = {
 
   getAllUsers: async (req, res) => {
     try {
-      const users = await User.find(); // Ẩn mật khẩu
+      const users = await User.find().select("-password");
       res.json(users);
     } catch (error) {
       res.status(500).json({ message: "Lỗi server", error });
     }
   },
+
   getUserById: async (req, res) => {
     const { id } = req.params;
 
@@ -128,6 +190,8 @@ const authController = {
       res.status(500).json({ message: "Lỗi server", error });
     }
   },
+
+  
 };
 
 export default authController;
