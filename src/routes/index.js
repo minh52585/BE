@@ -23,7 +23,13 @@ import {
     updateorder,
     deleteOrder,
 } from "../controllers/orderController.js"
-
+import {
+    getAllCategories,
+    getCategoryById,
+    addCategory,
+    updateCategory,
+    deleteCategory,
+} from "../controllers/categoryController.js";
 const routes = Router();
 //API discount 
 routes.get("/discounts", getAllDiscounts);
@@ -43,4 +49,10 @@ routes.get("/order/:id", getOrderById);
 routes.post("/orders/add", addOrder);
 routes.put("/update/:id", updateorder);
 routes.delete("/delete/:id", deleteOrder);
+//category
+routes.get("/categories", getAllCategories);
+routes.get("/categories/:id", getCategoryById);
+routes.post("/categories/add", addCategory);
+routes.put("/categories/update/:id", updateCategory);
+routes.delete("/categories/delete/:id", deleteCategory);
 export default routes;
