@@ -31,6 +31,7 @@ export const addProduct = async (req, res, next) => {
 	try {
 		const newProduct = new Product(req.body);
 		await newProduct.save();
+
 		res.status(201).json({
 			success: true, data: newProduct
 		});

@@ -1,33 +1,13 @@
 import mongoose from "mongoose";
 
-const variantSchema = new mongoose.Schema(
-    {
-        format: {
-            type: String,
-            enum: ["Bìa cứng", "Bìa mềm"],
-            required: true,
-        },
-        price: {
-            type: Number,
-            required: true,
-        },
-        stock: {
-            type: Number,
-            default: 0,
-        },
-        sku: {
-            type: String,
-        },
-    },
-    {
-        _id: false,
-    }
-);
-
 const productSchema = new mongoose.Schema(
     {
         name: {
             type: String,
+            required: true,
+        },
+        price: {
+            type: Number,
             required: true,
         },
         description: {
@@ -41,15 +21,20 @@ const productSchema = new mongoose.Schema(
             type: String,
             required: true,
         },
-        variants: {
-            type: [variantSchema],
-            required: true,
+        stock: {
+            type: Number,
+            default: 0,
         },
         status: {
             type: String,
             enum: ["available", "out of stock"],
             default: "available",
         },
+        variants: {
+            type: [variantSchema],
+            required: true,
+        },
+
     },
     {
         timestamps: true,
