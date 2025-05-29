@@ -24,8 +24,8 @@ const productSchema = new mongoose.Schema({
     },
     status: {
         type: String,
-        enum: ['Còn hàng', 'Hết hàng'],
-        default: 'Còn hàng',
+        enum: ['Sẵn', 'Hết'],
+        default: 'Sẵn',
     }
 }, {
     timestamps: true 

@@ -1,5 +1,3 @@
-// models/discountModel.js
-
 import mongoose from "mongoose";
 
 const { Schema } = mongoose;
@@ -37,7 +35,7 @@ const discountSchema = new Schema(
     
     
   },
-  { timestamps: true } // moved here
+  { timestamps: true }
 );
 
 const Discount = mongoose.model("Discount", discountSchema);

@@ -1,6 +1,6 @@
 import Product from "../models/Product.js";
 import mongoose from "mongoose"
-//getall
+
 export const getAllProducts = async (req, res, next) => {
     try {
         const products = await Product.find();
@@ -10,7 +10,6 @@ export const getAllProducts = async (req, res, next) => {
     }
 };
 
-//getbyid
 export const getProductById = async (req, res, next) => {
     try {
         const product = await Product.findById(req.params.id);
@@ -23,7 +22,6 @@ export const getProductById = async (req, res, next) => {
     }
 };
 
-//create
 export const createProduct = async (req, res, next) => {
     try {
         const newProduct = new Product(req.body);
@@ -34,10 +32,8 @@ export const createProduct = async (req, res, next) => {
     }
 };
 
-//update
 export const updateProduct = async (req, res, next) => {
     try {
-        // Kiểm tra id hợp lệ
         if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
             return res.status(400).json({ success: false, message: "ID không hợp lệ" });
         }
@@ -55,7 +51,6 @@ export const updateProduct = async (req, res, next) => {
     }
 };
 
-//delete
 export const deleteProduct = async (req, res, next) => {
     try {
         const deletedProduct = await Product.findByIdAndDelete(req.params.id);

@@ -1,4 +1,4 @@
-import Discount from "../models/discountModel.js";
+import Discount from "../models/Discount.js";
 import mongoose from "mongoose";
 
 export const getAllDiscounts = async (_req, res, next) => {
@@ -52,14 +52,6 @@ export const addDiscount = async (req, res, next) => {
             });
         }
 
-        // const products = await Product.findById(product);
-        // if (!product) {
-        //     return res.status(404).json({
-        //         success: false,
-        //         message: "Sản phẩm không tồn tại",
-        //     });
-        // }
-
         const newDiscount = new Discount({
            
             productID,
@@ -97,14 +89,6 @@ export const updateDiscount = async (req, res, next) => {
                 message: "Mã giảm giá đã tồn tại",
             });
         }
-
-        // const product = await Product.findById(productID);
-        // if (!product) {
-        //     return res.status(404).json({
-        //         success: false,
-//         message: "Sản phẩm không tồn tại",
-        //     });
-        // }
 
         const updatedDiscount = await Discount.findByIdAndUpdate(
             req.params.id,
