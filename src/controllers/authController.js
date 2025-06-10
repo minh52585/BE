@@ -2,15 +2,25 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import User from "../models/User.js";
 import { sendEmail } from "../utils/sendMail.js";
-
 import {
   RESET_PASSWORD_SECRET,
   RESET_PASSWORD_EXPIRES,
   FRONTEND_URL,
+  JWT_SECRET,
 } from "../configs/enviroments.js";
 
-
-
+const generateToken = (user) => {
+  return jwt.sign(
+    {
+      userId: user._id,
+      email: user.email,
+      fullname: user.fullname,
+      role: user.role,
+    },
+    JWT_SECRET,
+    { expiresIn: "1h" }
+  );
+};
 
 const authController = {
   register: async (req, res) => {
@@ -54,16 +64,7 @@ const authController = {
         return res.status(400).json({ message: "Sai mật khẩu" });
       }
 
-      const token = jwt.sign(
-        {
-          userId: user._id,
-          email: user.email,
-          fullname: user.fullname,
-          role: user.role, // ✅ Bắt buộc để isAdmin hoạt động
-        },
-        process.env.JWT_SECRET,
-        { expiresIn: "1h" }
-      );
+      const token = generateToken(user);
 
       res.json({
         token,
@@ -77,6 +78,16 @@ const authController = {
     } catch (error) {
       res.status(500).json({ message: "Lỗi server", error });
     }
+  },
+
+  oauthCallback: async (req, res) => {
+    const user = req.user; // Passport đã gán user vào req.user
+    if (!user) {
+      return res.status(400).json({ message: "OAuth thất bại" });
+    }
+
+    const token = generateToken(user);
+    res.redirect(`${FRONTEND_URL}/oauth-success?token=${token}`);
   },
 
   forgotPassword: async (req, res) => {
@@ -100,9 +111,7 @@ const authController = {
         `Click vào link sau để đặt lại mật khẩu: ${resetLink}`
       );
 
-      res
-        .status(200)
-        .json({ message: "Link đặt lại mật khẩu đã được gửi qua email" });
+      res.status(200).json({ message: "Link đặt lại mật khẩu đã được gửi qua email" });
     } catch (error) {
       res.status(500).json({ message: "Lỗi server", error });
     }
@@ -190,8 +199,6 @@ const authController = {
       res.status(500).json({ message: "Lỗi server", error });
     }
   },
-
-  
 };
 
 export default authController;

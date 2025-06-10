@@ -1,30 +1,72 @@
 import { Router } from "express";
+import passport from "passport";
 import authController from "../controllers/authController.js";
 import { verifyToken, isAdmin } from "../middlewares/authMiddleware.js";
 
 const router = Router();
-//AuthAuth
-// Đăng ký và đăng nhập
+
+// === Local Auth ===
 router.post("/register", authController.register);
 router.post("/login", authController.login);
-//UserUser
-// Lấy danh sách tất cả người dùng (cần xác thực, có thể kiểm tra quyền admin nếu muốn)
-router.get("/users", verifyToken, authController.getAllUsers);
 
-// Lấy thông tin người dùng theo ID
-router.get("/users/:id", verifyToken, authController.getUserById);
+// === Middleware: Đảm bảo đã login
+function ensureAuthenticated(req, res, next) {
+  if (req.isAuthenticated()) return next();
+  res.redirect('/');
+}
 
-// Cập nhật thông tin người dùng
-router.put("/users/:id", verifyToken, authController.updateUser);
+// === Google OAuth ===
+router.get("/", (req, res) => {
+  res.send("<a href='/auth/google'>Login With Google</a>");
+});
 
-// Xoá người dùng (chỉ admin mới được xóa)
-router.delete("/users/:id", verifyToken, isAdmin, authController.deleteUser);
+router.get("/auth/google",
+  passport.authenticate("google", { scope: ['profile', 'email'] })
+);
 
+router.get("/auth/google/callback",
+  passport.authenticate("google", { failureRedirect: '/' }),
+  (req, res) => {
+    res.redirect("/profile");
+  }
+);
 
-// Gửi email đặt lại mật khẩu
+// === Profile protected route ===
+router.get("/profile", ensureAuthenticated, (req, res) => {
+  res.send(`Welcome ${req.user.fullname || req.user.displayName}`);
+});
+
+// === Logout ===
+router.get("/logout", (req, res) => {
+  req.logout(() => {
+    res.redirect("/");
+  });
+});
+
+// // Facebook OAuth
+// router.get("/facebook", passport.authenticate("facebook", { scope: ["email"] }));
+// router.get(
+//   "/facebook/callback",
+//   passport.authenticate("facebook", { session: false, failureRedirect: "/login" }),
+//   authController.oauthCallback
+// );
+
+// // GitHub OAuth
+// router.get("/github", passport.authenticate("github", { scope: ["user:email"] }));
+// router.get(
+//   "/github/callback",
+//   passport.authenticate("github", { session: false, failureRedirect: "/login" }),
+//   authController.oauthCallback
+// );
+
+// === Forgot / Reset Password ===
 router.post("/forgot-password", authController.forgotPassword);
-
-// Xác nhận và đặt lại mật khẩu mới
 router.post("/reset-password/:token", authController.resetPassword);
+
+// === User Management ===
+router.get("/users", verifyToken, authController.getAllUsers);
+router.get("/users/:id", verifyToken, authController.getUserById);
+router.put("/users/:id", verifyToken, authController.updateUser);
+router.delete("/users/:id", verifyToken, isAdmin, authController.deleteUser);
 
 export default router;

@@ -2,6 +2,7 @@ import { Router } from "express";
 import authController from "../controllers/authController.js";
 import { verifyToken, isAdmin } from "../middlewares/authMiddleware.js";
 import { sendEmail } from "../utils/sendMail.js";
+
 const routes = Router();
 
 // Login & Register
@@ -21,6 +22,8 @@ routes.put("/users/:id", verifyToken, authController.updateUser);
 
 // Delete user (admin only)
 routes.delete("/users/:id", verifyToken, isAdmin, authController.deleteUser);
+
+
 
 
 

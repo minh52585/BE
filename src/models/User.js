@@ -1,4 +1,3 @@
-// import { de } from "@faker-js/faker";
 import mongoose from "mongoose";
 
 const addressSchema = new mongoose.Schema({
@@ -31,28 +30,53 @@ const userSchema = new mongoose.Schema(
       required: true,
       unique: true,
     },
+
+    // Với tài khoản đăng ký bằng email/password
     password: {
       type: String,
-      required: true,
+      required: function () {
+        // Nếu không có google/facebook/github thì mới yêu cầu password
+        return !this.googleId && !this.facebookId && !this.githubId;
+      },
     },
+
     phoneNumber: {
       type: String,
-      required: true,
+      required: false, // Có thể không có nếu đăng nhập bằng social
     },
+
     address: [
       {
         type: addressSchema,
-        required: true,
+        required: false,
       },
     ],
+
     role: {
       type: String,
       enum: ["user", "admin"],
       default: "user",
     },
-  },
 
-  { timestamps: true, versionKey: false }
+    avatar: {
+      type: String,
+    },
+
+    // OAuth fields
+    googleId: {
+      type: String,
+    },
+    facebookId: {
+      type: String,
+    },
+    githubId: {
+      type: String,
+    },
+  },
+  {
+    timestamps: true,
+    versionKey: false,
+  }
 );
 
 const User = mongoose.model("User", userSchema);
