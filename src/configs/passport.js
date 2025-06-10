@@ -62,32 +62,46 @@ passport.use(
 );
 
 // // ================== FACEBOOK STRATEGY ==================
-// passport.use(
-//   new FacebookStrategy(
-//     {
-//       clientID: process.env.FACEBOOK_CLIENT_ID,
-//       clientSecret: process.env.FACEBOOK_CLIENT_SECRET,
-//       callbackURL: "/auth/facebook/callback",
-//       profileFields: ["id", "displayName", "photos", "email"],
-//     },
-//     async (accessToken, refreshToken, profile, done) => {
-//       try {
-//         let user = await User.findOne({ facebookId: profile.id });
-//         if (!user) {
-//           user = await User.create({
-//             fullname: profile.displayName,
-//             email: profile.emails?.[0]?.value || "",
-//             facebookId: profile.id,
-//             avatar: profile.photos?.[0]?.value || "",
-//           });
-//         }
-//         done(null, user);
-//       } catch (err) {
-//         done(err, null);
-//       }
-//     }
-//   )
-// );
+// ================== FACEBOOK STRATEGY ==================
+passport.use(
+  new FacebookStrategy(
+    {
+      clientID: process.env.FACEBOOK_CLIENT_ID,
+      clientSecret: process.env.FACEBOOK_CLIENT_SECRET,
+      callbackURL: "http://localhost:8888/auth/facebook/callback",
+      profileFields: ["id", "displayName", "photos", "email"], // Quan trọng để lấy email
+    },
+    async (accessToken, refreshToken, profile, done) => {
+      try {
+        const email = profile.emails?.[0]?.value || "";
+        let user = await User.findOne({ facebookId: profile.id });
+
+        if (!user) {
+          user = await User.findOne({ email });
+
+          if (user) {
+            // Nếu đã có user với email này, chỉ cập nhật thêm facebookId
+            user.facebookId = profile.id;
+            await user.save();
+          } else {
+            // Nếu chưa có ai dùng email này, tạo user mới
+            user = await User.create({
+              fullname: profile.displayName,
+              email,
+              facebookId: profile.id,
+              avatar: profile.photos?.[0]?.value || "",
+            });
+          }
+        }
+
+        return done(null, user);
+      } catch (err) {
+        return done(err, null);
+      }
+    }
+  )
+);
+
 
 // // ================== GITHUB STRATEGY ==================
 // passport.use(

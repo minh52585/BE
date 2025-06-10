@@ -9,17 +9,18 @@ const router = Router();
 router.post("/register", authController.register);
 router.post("/login", authController.login);
 
-// === Middleware: Đảm bảo đã login
-function ensureAuthenticated(req, res, next) {
-  if (req.isAuthenticated()) return next();
-  res.redirect('/');
-}
 
-// === Google OAuth ===
+
+// === Trang chủ: hiển thị nút đăng nhập Google & Facebook ===
 router.get("/", (req, res) => {
-  res.send("<a href='/auth/google'>Login With Google</a>");
+  res.send(`
+    <h2>Login Options</h2>
+    <a href='/auth/google'>Login With Google</a><br/>
+    <a href='/auth/facebook'>Login With Facebook</a>
+  `);
 });
 
+// === Google OAuth ===
 router.get("/auth/google",
   passport.authenticate("google", { scope: ['profile', 'email'] })
 );
@@ -31,9 +32,27 @@ router.get("/auth/google/callback",
   }
 );
 
+// === Facebook OAuth ===
+router.get("/auth/facebook",
+  passport.authenticate("facebook", { scope: ['email'] })
+);
+
+router.get("/auth/facebook/callback",
+  passport.authenticate("facebook", { failureRedirect: '/' }),
+  (req, res) => {
+    res.redirect("/profile");
+  }
+);
+
 // === Profile protected route ===
+function ensureAuthenticated(req, res, next) {
+  if (req.isAuthenticated()) return next();
+  res.redirect("/");
+}
+
 router.get("/profile", ensureAuthenticated, (req, res) => {
-  res.send(`Welcome ${req.user.fullname || req.user.displayName}`);
+  const name = req.user.fullname || req.user.displayName || "User";
+  res.send(`<h2>Welcome ${name}</h2><a href="/logout">Logout</a>`);
 });
 
 // === Logout ===
@@ -42,14 +61,6 @@ router.get("/logout", (req, res) => {
     res.redirect("/");
   });
 });
-
-// // Facebook OAuth
-// router.get("/facebook", passport.authenticate("facebook", { scope: ["email"] }));
-// router.get(
-//   "/facebook/callback",
-//   passport.authenticate("facebook", { session: false, failureRedirect: "/login" }),
-//   authController.oauthCallback
-// );
 
 // // GitHub OAuth
 // router.get("/github", passport.authenticate("github", { scope: ["user:email"] }));
