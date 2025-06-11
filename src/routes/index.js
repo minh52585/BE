@@ -23,9 +23,4 @@ routes.put("/users/:id", verifyToken, authController.updateUser);
 // Delete user (admin only)
 routes.delete("/users/:id", verifyToken, isAdmin, authController.deleteUser);
 
-
-
-
-
-
 export default routes;

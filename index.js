@@ -1,20 +1,18 @@
-import express from "express";
-import routes from "./src/routes/index.js";
-import connectDB from "./src/configs/db.js";
-import notFoundHandler from "./src/middlewares/notFoundHandler.js";
-import errorHandler from "./src/middlewares/errorHandler.js";
 import cors from "cors";
+import express from "express";
+import connectDB from "./src/configs/db.js";
 import { PORT } from "./src/configs/enviroments.js";
-import jsonValid from "./src/middlewares/jsonInvalid.js";
 import setupSwagger from "./src/configs/swaggerConfig.js";
+import errorHandler from "./src/middlewares/errorHandler.js";
+import jsonValid from "./src/middlewares/jsonInvalid.js";
+import notFoundHandler from "./src/middlewares/notFoundHandler.js";
 import { formatResponseSuccess } from "./src/middlewares/successHandler.js";
+import routes from "./src/routes/index.js";
 // var GoogleStrategy = require('passport-google-oauth20').Strategy;
-import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
-import authRoutes from "./src/routes/auth.js"; 
 import session from "express-session";
 import passport from "passport";
 import "./src/configs/passport.js"; //
-import { google } from "googleapis";
+import authRoutes from "./src/routes/auth.js";
 const app = express();
 app.use(express.json());
 
@@ -29,23 +27,16 @@ app.use(
 );
 
 app.use(
-	session({
-		secret: "secret",
-		resave: false,
-		saveUninitialized: true,
-	})
+  session({
+    secret: "secret",
+    resave: false,
+    saveUninitialized: true,
+  })
 );
 
 // ✅ Kích hoạt Passport middleware
 app.use(passport.initialize());
 app.use(passport.session());
-
-
-
-
-
-
-
 
 setupSwagger(app);
 

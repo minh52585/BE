@@ -9,8 +9,6 @@ const router = Router();
 router.post("/register", authController.register);
 router.post("/login", authController.login);
 
-
-
 // === Trang chủ: hiển thị nút đăng nhập Google & Facebook ===
 router.get("/", (req, res) => {
   res.send(`
@@ -21,24 +19,28 @@ router.get("/", (req, res) => {
 });
 
 // === Google OAuth ===
-router.get("/auth/google",
-  passport.authenticate("google", { scope: ['profile', 'email'] })
+router.get(
+  "/auth/google",
+  passport.authenticate("google", { scope: ["profile", "email"] })
 );
 
-router.get("/auth/google/callback",
-  passport.authenticate("google", { failureRedirect: '/' }),
+router.get(
+  "/auth/google/callback",
+  passport.authenticate("google", { failureRedirect: "/" }),
   (req, res) => {
     res.redirect("/profile");
   }
 );
 
 // === Facebook OAuth ===
-router.get("/auth/facebook",
-  passport.authenticate("facebook", { scope: ['email'] })
+router.get(
+  "/auth/facebook",
+  passport.authenticate("facebook", { scope: ["email"] })
 );
 
-router.get("/auth/facebook/callback",
-  passport.authenticate("facebook", { failureRedirect: '/' }),
+router.get(
+  "/auth/facebook/callback",
+  passport.authenticate("facebook", { failureRedirect: "/" }),
   (req, res) => {
     res.redirect("/profile");
   }
