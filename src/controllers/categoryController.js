@@ -8,11 +8,19 @@ export const getAllCategories = async (req, res, next) => {
             message:"Lấy danh sách danh mục thành công",
             data: categories
         });
+import Category from '../models/Category.js';
+
+// Get all categories
+export const getAllCategories = async (_req, res, next) => {
+    try {
+        const categories = await Category.find();
+        res.status(200).json(categories);
     } catch (error) {
         next(error);
     }
 };
 
+// Get category by ID
 export const getCategoryById = async (req, res, next) => {
     try {
         const category = await Category.findById(req.params.id);
@@ -27,6 +35,7 @@ export const getCategoryById = async (req, res, next) => {
             message:"Lấy chi tiết danh mục thành công",
             data: category
         });
+        res.status(200).json(category);
     } catch (error) {
         next(error);
     }
@@ -41,6 +50,9 @@ export const addCategory = async (req, res, next) => {
                 message: "Tên danh mục đã tồn tại"
             });
         }
+// Add category
+export const addCategory = async (req, res, next) => {
+    try {
         const newCategory = new Category(req.body);
         await newCategory.save();
         res.status(201).json({
@@ -53,6 +65,7 @@ export const addCategory = async (req, res, next) => {
     }
 };
 
+// Update category
 export const updateCategory = async (req, res, next) => {
     try {
         const updatedCategory = await Category.findByIdAndUpdate(
@@ -76,6 +89,7 @@ export const updateCategory = async (req, res, next) => {
     }
 };
 
+// Delete category
 export const deleteCategory = async (req, res, next) => {
     try {
         const deletedCategory = await Category.findByIdAndDelete(req.params.id);
@@ -93,3 +107,4 @@ export const deleteCategory = async (req, res, next) => {
         next(error);
     }
 };
+}; 
