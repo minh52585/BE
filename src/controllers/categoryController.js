@@ -1,3 +1,13 @@
+import {Category} from '../models/Category.js';
+
+export const getAllCategories = async (req, res, next) => {
+    try {
+        const categories = await Category.find();
+        res.status(200).json({
+            success: true,
+            message:"Lấy danh sách danh mục thành công",
+            data: categories
+        });
 import Category from '../models/Category.js';
 
 // Get all categories
@@ -20,12 +30,26 @@ export const getCategoryById = async (req, res, next) => {
                 message: "Không tìm thấy danh mục"
             });
         }
+        res.status(200).json({
+            success: true,
+            message:"Lấy chi tiết danh mục thành công",
+            data: category
+        });
         res.status(200).json(category);
     } catch (error) {
         next(error);
     }
 };
 
+export const addCategory = async (req, res, next) => {
+    try {
+        const existingCategory = await Category.findOne({ name: req.body.name });
+        if (existingCategory) {
+            return res.status(400).json({
+                success: false,
+                message: "Tên danh mục đã tồn tại"
+            });
+        }
 // Add category
 export const addCategory = async (req, res, next) => {
     try {
@@ -33,6 +57,7 @@ export const addCategory = async (req, res, next) => {
         await newCategory.save();
         res.status(201).json({
             success: true,
+            message: "Danh mục đã được thêm thành công",
             data: newCategory
         });
     } catch (error) {
@@ -56,6 +81,7 @@ export const updateCategory = async (req, res, next) => {
         }
         res.status(200).json({
             success: true,
+            message: "Danh mục đã được cập nhật thành công",
             data: updatedCategory
         });
     } catch (error) {
@@ -80,4 +106,5 @@ export const deleteCategory = async (req, res, next) => {
     } catch (error) {
         next(error);
     }
+};
 }; 

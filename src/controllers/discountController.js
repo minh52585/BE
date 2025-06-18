@@ -1,3 +1,5 @@
+import Discount from "../models/Discount.js";
+import mongoose from "mongoose";
 import Discount from "../models/discountModel.js";
 import Product from "../models/Product.js";
 
@@ -10,6 +12,17 @@ export const getAllDiscounts = async (_req, res, next) => {
     }
 };
 export const getDiscountById = async (req, res, next) => {
+    const { id } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(400).json({
+            success: false,
+            message: "ID mã giảm giá không hợp lệ",
+        });
+    }
+
+    try {
+        const discount = await Discount.findById(id);
     try {
         const discount = await Discount.findById(req.params.id);
         if (!discount) {
@@ -23,6 +36,19 @@ export const getDiscountById = async (req, res, next) => {
         next(error);
     }
 };
+
+export const addDiscount = async (req, res, next) => {
+    try {
+        const {  
+            
+            productID,
+            variantID,
+            discount_type,
+            discount_value,
+            status,
+            date } = req.body;
+
+        const existingDiscount = await Discount.findOne({ productID, variantID });
 export const addDiscount = async (req, res, next) => {
     try {
         const { code, discountPercent, productId } = req.body;
@@ -35,6 +61,14 @@ export const addDiscount = async (req, res, next) => {
             });
         }
 
+        const newDiscount = new Discount({
+           
+            productID,
+            variantID,
+            discount_type,
+            discount_value,
+            status,
+            date
         const product = await Product.findById(productId);
         if (!product) {
             return res.status(404).json({
@@ -60,6 +94,16 @@ export const addDiscount = async (req, res, next) => {
 };
 export const updateDiscount = async (req, res, next) => {
     try {
+        const {  
+            
+            productID,
+            variantID,
+            discount_type,
+            discount_value,
+            status,
+            date } = req.body;
+
+        const existingDiscount = await Discount.findOne({ productID, variantID });
         const { code, discountPercent, productId } = req.body;
 
         const existingDiscount = await Discount.findOne({ code });
@@ -70,6 +114,16 @@ export const updateDiscount = async (req, res, next) => {
             });
         }
 
+        const updatedDiscount = await Discount.findByIdAndUpdate(
+            req.params.id,
+            {  
+            productID,
+            variantID,
+            discount_type,
+            discount_value,
+            status,
+            date
+         },
         const product = await Product.findById(productId);
         if (!product) {
             return res.status(404).json({
