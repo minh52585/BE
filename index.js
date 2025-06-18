@@ -46,7 +46,7 @@ app.use(formatResponseSuccess);
 // Middleware xử lý JSON không hợp lệ
 app.use(jsonValid);
 
-// Middleware xử lý lỗi chung
+// Middleware xửa lý lỗi chung
 app.use(errorHandler);
 app.use("/", authRoutes);
 app.use("/api", routes);
