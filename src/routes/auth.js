@@ -9,20 +9,18 @@ const router = Router();
 router.post("/register", authController.register);
 router.post("/login", authController.login);
 
-// === Trang chủ: hiển thị nút đăng nhập Google & Facebook ===
+// === Trang chủ: hiển thị nút đăng nhập ===
 router.get("/", (req, res) => {
   res.send(`
     <h2>Login Options</h2>
     <a href='/auth/google'>Login With Google</a><br/>
-    <a href='/auth/facebook'>Login With Facebook</a>
+    <a href='/auth/facebook'>Login With Facebook</a><br/>
+    <a href='/auth/github'>Login With GitHub</a>
   `);
 });
 
 // === Google OAuth ===
-router.get(
-  "/auth/google",
-  passport.authenticate("google", { scope: ["profile", "email"] })
-);
+router.get("/auth/google", passport.authenticate("google", { scope: ["profile", "email"] }));
 
 router.get(
   "/auth/google/callback",
@@ -33,14 +31,22 @@ router.get(
 );
 
 // === Facebook OAuth ===
-router.get(
-  "/auth/facebook",
-  passport.authenticate("facebook", { scope: ["email"] })
-);
+router.get("/auth/facebook", passport.authenticate("facebook", { scope: ["email"] }));
 
 router.get(
   "/auth/facebook/callback",
   passport.authenticate("facebook", { failureRedirect: "/" }),
+  (req, res) => {
+    res.redirect("/profile");
+  }
+);
+
+// === GitHub OAuth ===
+router.get("/auth/github", passport.authenticate("github", { scope: ["user:email"] }));
+
+router.get(
+  "/auth/github/callback",
+  passport.authenticate("github", { failureRedirect: "/" }),
   (req, res) => {
     res.redirect("/profile");
   }
@@ -53,7 +59,7 @@ function ensureAuthenticated(req, res, next) {
 }
 
 router.get("/profile", ensureAuthenticated, (req, res) => {
-  const name = req.user.fullname || req.user.displayName || "User";
+  const name = req.user?.fullname || req.user?.displayName || req.user?.username || "User";
   res.send(`<h2>Welcome ${name}</h2><a href="/logout">Logout</a>`);
 });
 
@@ -63,14 +69,6 @@ router.get("/logout", (req, res) => {
     res.redirect("/");
   });
 });
-
-// // GitHub OAuth
-// router.get("/github", passport.authenticate("github", { scope: ["user:email"] }));
-// router.get(
-//   "/github/callback",
-//   passport.authenticate("github", { session: false, failureRedirect: "/login" }),
-//   authController.oauthCallback
-// );
 
 // === Forgot / Reset Password ===
 router.post("/forgot-password", authController.forgotPassword);

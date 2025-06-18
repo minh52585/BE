@@ -101,32 +101,48 @@ passport.use(
   )
 );
 
-// // ================== GITHUB STRATEGY ==================
-// passport.use(
-//   new GitHubStrategy(
-//     {
-//       clientID: process.env.GITHUB_CLIENT_ID,
-//       clientSecret: process.env.GITHUB_CLIENT_SECRET,
-//       callbackURL: "/auth/github/callback",
-//       scope: ["user:email"],
-//     },
-//     async (accessToken, refreshToken, profile, done) => {
-//       try {
-//         let user = await User.findOne({ githubId: profile.id });
-//         if (!user) {
-//           user = await User.create({
-//             fullname: profile.displayName || profile.username,
-//             email: profile.emails?.[0]?.value || "",
-//             githubId: profile.id,
-//             avatar: profile.photos?.[0]?.value || "",
-//           });
-//         }
-//         done(null, user);
-//       } catch (err) {
-//         done(err, null);
-//       }
-//     }
-//   )
-// );
+// ================== GITHUB STRATEGY ==================
+passport.use(
+  new GitHubStrategy(
+    {
+      clientID: process.env.GITHUB_CLIENT_ID,
+      clientSecret: process.env.GITHUB_CLIENT_SECRET,
+      callbackURL: "http://localhost:8888/auth/github/callback",
+      scope: ["user:email"],
+    },
+    async (accessToken, refreshToken, profile, done) => {
+      try {
+        const githubId = profile.id;
+        const email = profile.emails?.[0]?.value || `${profile.username}@github.com`;
 
-// export default passport;
+        // Tìm theo githubId trước
+        let user = await User.findOne({ githubId });
+
+        if (!user) {
+          // Nếu chưa có githubId, kiểm tra xem email đã tồn tại chưa
+          user = await User.findOne({ email });
+
+          if (user) {
+            // Gộp tài khoản: thêm githubId nếu email đã có
+            user.githubId = githubId;
+            await user.save();
+          } else {
+            // Nếu email cũng chưa có → tạo user mới
+            user = await User.create({
+              fullname: profile.displayName || profile.username,
+              email,
+              githubId,
+              avatar: profile.photos?.[0]?.value || "",
+            });
+          }
+        }
+
+        done(null, user);
+      } catch (err) {
+        done(err, null);
+      }
+    }
+  )
+);
+
+
