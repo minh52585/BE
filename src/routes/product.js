@@ -1,4 +1,3 @@
-import routes from "./index.js";
 import { Router } from "express";
 import {
     getAllProducts,
@@ -8,13 +7,13 @@ import {
     deleteProduct,
 } from "../controllers/productController.js";
 
-const routes = Router();
-//API product
-routes.get("/product", getAllProducts);
-routes.get("/product/:id", getProductById);
-routes.post("/products/add", addProduct);
-routes.put("/update/:id", updateProduct);
-routes.delete("/delete/:id", deleteProduct);
+const productRoutes = Router();
+
+// API product
+productRoutes.get("/", getAllProducts);
+productRoutes.get("/:id", getProductById);
+productRoutes.post("/add", addProduct);
+productRoutes.put("/:id", updateProduct);
+productRoutes.delete("/:id", deleteProduct);
 
 export default productRoutes;
-const productRoutes = routes;

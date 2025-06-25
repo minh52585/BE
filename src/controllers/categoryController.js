@@ -1,16 +1,20 @@
-import Category from '../models/Category.js';
+import { Category } from '../models/Category.js';
 
-// Get all categories
-export const getAllCategories = async (_req, res, next) => {
+// Lấy tất cả danh mục
+export const getAllCategories = async (req, res, next) => {
     try {
         const categories = await Category.find();
-        res.status(200).json(categories);
+        res.status(200).json({
+            success: true,
+            message: "Lấy danh sách danh mục thành công",
+            data: categories
+        });
     } catch (error) {
         next(error);
     }
 };
 
-// Get category by ID
+// Lấy danh mục theo ID
 export const getCategoryById = async (req, res, next) => {
     try {
         const category = await Category.findById(req.params.id);
@@ -20,19 +24,31 @@ export const getCategoryById = async (req, res, next) => {
                 message: "Không tìm thấy danh mục"
             });
         }
-        res.status(200).json(category);
+        res.status(200).json({
+            success: true,
+            message: "Lấy chi tiết danh mục thành công",
+            data: category
+        });
     } catch (error) {
         next(error);
     }
 };
 
-// Add category
+// Thêm danh mục
 export const addCategory = async (req, res, next) => {
     try {
+        const existingCategory = await Category.findOne({ name: req.body.name });
+        if (existingCategory) {
+            return res.status(400).json({
+                success: false,
+                message: "Tên danh mục đã tồn tại"
+            });
+        }
         const newCategory = new Category(req.body);
         await newCategory.save();
         res.status(201).json({
             success: true,
+            message: "Danh mục đã được thêm thành công",
             data: newCategory
         });
     } catch (error) {
@@ -40,7 +56,7 @@ export const addCategory = async (req, res, next) => {
     }
 };
 
-// Update category
+// Cập nhật danh mục
 export const updateCategory = async (req, res, next) => {
     try {
         const updatedCategory = await Category.findByIdAndUpdate(
@@ -56,6 +72,7 @@ export const updateCategory = async (req, res, next) => {
         }
         res.status(200).json({
             success: true,
+            message: "Danh mục đã được cập nhật thành công",
             data: updatedCategory
         });
     } catch (error) {
@@ -63,7 +80,7 @@ export const updateCategory = async (req, res, next) => {
     }
 };
 
-// Delete category
+// Xóa danh mục
 export const deleteCategory = async (req, res, next) => {
     try {
         const deletedCategory = await Category.findByIdAndDelete(req.params.id);
@@ -80,4 +97,4 @@ export const deleteCategory = async (req, res, next) => {
     } catch (error) {
         next(error);
     }
-}; 
+};

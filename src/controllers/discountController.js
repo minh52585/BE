@@ -1,6 +1,8 @@
 import Discount from "../models/discountModel.js";
+import mongoose from "mongoose";
 import Product from "../models/Product.js";
 
+// Lấy tất cả mã giảm giá
 export const getAllDiscounts = async (_req, res, next) => {
     try {
         const discounts = await Discount.find();
@@ -9,9 +11,18 @@ export const getAllDiscounts = async (_req, res, next) => {
         next(error);
     }
 };
+
+// Lấy mã giảm giá theo ID
 export const getDiscountById = async (req, res, next) => {
+    const { id } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(400).json({
+            success: false,
+            message: "ID mã giảm giá không hợp lệ",
+        });
+    }
     try {
-        const discount = await Discount.findById(req.params.id);
+        const discount = await Discount.findById(id);
         if (!discount) {
             return res.status(404).json({
                 success: false,
@@ -23,10 +34,11 @@ export const getDiscountById = async (req, res, next) => {
         next(error);
     }
 };
+
+// Thêm mã giảm giá
 export const addDiscount = async (req, res, next) => {
     try {
         const { code, discountPercent, productId } = req.body;
-
         const existingDiscount = await Discount.findOne({ code });
         if (existingDiscount) {
             return res.status(400).json({
@@ -34,7 +46,6 @@ export const addDiscount = async (req, res, next) => {
                 message: "Mã giảm giá đã tồn tại",
             });
         }
-
         const product = await Product.findById(productId);
         if (!product) {
             return res.status(404).json({
@@ -42,13 +53,7 @@ export const addDiscount = async (req, res, next) => {
                 message: "Sản phẩm không tồn tại",
             });
         }
-
-        const newDiscount = new Discount({
-            code,
-            discountPercent,
-            productId,
-        });
-
+        const newDiscount = new Discount({ code, discountPercent, productId });
         await newDiscount.save();
         res.status(201).json({
             success: true,
@@ -58,10 +63,11 @@ export const addDiscount = async (req, res, next) => {
         next(error);
     }
 };
+
+// Cập nhật mã giảm giá
 export const updateDiscount = async (req, res, next) => {
     try {
         const { code, discountPercent, productId } = req.body;
-
         const existingDiscount = await Discount.findOne({ code });
         if (existingDiscount && existingDiscount._id.toString() !== req.params.id) {
             return res.status(400).json({
@@ -69,7 +75,6 @@ export const updateDiscount = async (req, res, next) => {
                 message: "Mã giảm giá đã tồn tại",
             });
         }
-
         const product = await Product.findById(productId);
         if (!product) {
             return res.status(404).json({
@@ -77,20 +82,17 @@ export const updateDiscount = async (req, res, next) => {
                 message: "Sản phẩm không tồn tại",
             });
         }
-
         const updatedDiscount = await Discount.findByIdAndUpdate(
             req.params.id,
             { code, discountPercent, productId },
             { new: true }
         );
-
         if (!updatedDiscount) {
             return res.status(404).json({
                 success: false,
                 message: "Không tìm thấy mã giảm giá",
             });
         }
-
         res.json({
             success: true,
             data: updatedDiscount,
@@ -99,6 +101,8 @@ export const updateDiscount = async (req, res, next) => {
         next(error);
     }
 };
+
+// Xóa mã giảm giá
 export const deleteDiscount = async (req, res, next) => {
     try {
         const deletedDiscount = await Discount.findByIdAndDelete(req.params.id);

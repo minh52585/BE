@@ -30,11 +30,6 @@ const productSchema = new mongoose.Schema(
             enum: ["available", "out of stock"],
             default: "available",
         },
-        variants: {
-            type: [variantSchema],
-            required: true,
-        },
-
     },
     {
         timestamps: true,

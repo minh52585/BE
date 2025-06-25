@@ -1,6 +1,6 @@
 import Order from "../models/order.js"
 
-// Getallorders
+// Lấy tất cả đơn hàng
 export const getAllOrders = async (req, res, next) => {
     try {
         const orders = await Order.find();
@@ -10,12 +10,12 @@ export const getAllOrders = async (req, res, next) => {
     }
 };
 
-//getorderById
+// Lấy đơn hàng theo ID
 export const getOrderById = async (req, res, next) => {
     try {
         const order = await Order.findById(req.params.id);
         if (!order) {
-            return res.status(404).json({ message: "không tìm thấy đơn hàng" });
+            return res.status(404).json({ message: "Không tìm thấy đơn hàng" });
         }
         res.status(200).json(order);
     } catch (error) {
@@ -23,17 +23,19 @@ export const getOrderById = async (req, res, next) => {
     }
 };
 
-//addOrder
+// Thêm đơn hàng
 export const addOrder = async (req, res, next) => {
     try {
-
+        const newOrder = new Order(req.body);
+        await newOrder.save();
+        res.status(201).json(newOrder);
     } catch (error) {
         next(error)
     }
 }
 
-//UpdateOrder
-export const updateorder = async (req, res, next) => {
+// Cập nhật đơn hàng
+export const updateOrder = async (req, res, next) => {
     try {
         const updatedOrder = await Order.findByIdAndUpdate(
             req.params.id,
@@ -41,7 +43,7 @@ export const updateorder = async (req, res, next) => {
             { new: true }
         );
         if (!updatedOrder) {
-            return res.status(404).json({ message: "Ko tìm thấy đơn hàng" });
+            return res.status(404).json({ message: "Không tìm thấy đơn hàng" });
         }
         res.status(200).json(updatedOrder);
     } catch (error) {
@@ -49,7 +51,7 @@ export const updateorder = async (req, res, next) => {
     }
 }
 
-//deleteOrder
+// Xóa đơn hàng
 export const deleteOrder = async (req, res, next) => {
     try {
         const deletedOrder = await Order.findByIdAndDelete(req.params.id);
@@ -61,4 +63,3 @@ export const deleteOrder = async (req, res, next) => {
         next(error);
     }
 }
-
