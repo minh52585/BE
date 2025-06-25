@@ -49,6 +49,12 @@ app.use(jsonValid);
 // Middleware xửa lý lỗi chung
 app.use(errorHandler);
 app.use("/", authRoutes);
+import productRoutes from "./src/routes/product.js";
+app.use("/api/products", productRoutes);
+import categoryRoutes from "./src/routes/product.js";
+app.use("/api/categories", categoryRoutes);
+
+
 app.use("/api", routes);
 
 // Middleware xử lý route không tồn tại

@@ -4,11 +4,8 @@ import { Strategy as FacebookStrategy } from "passport-facebook";
 import { Strategy as GitHubStrategy } from "passport-github2";
 import User from "../models/User.js";
 
-//
-
-// Serialize & Deserialize (cho session, nếu cần)
 passport.serializeUser((user, done) => {
-  done(null, user.id); // chỉ lưu user._id vào session
+  done(null, user.id);
 });
 
 passport.deserializeUser(async (id, done) => {
@@ -20,7 +17,6 @@ passport.deserializeUser(async (id, done) => {
   }
 });
 
-// ================== GOOGLE STRATEGY ==================
 passport.use(
   new GoogleStrategy(
     {
@@ -34,15 +30,11 @@ passport.use(
         let user = await User.findOne({ googleId: profile.id });
 
         if (!user) {
-          // Nếu chưa có googleId → tìm theo email
           user = await User.findOne({ email });
-
           if (user) {
-            // Nếu đã tồn tại user với email đó, cập nhật googleId
             user.googleId = profile.id;
             await user.save();
           } else {
-            // Nếu chưa có ai dùng email này → tạo mới user
             user = await User.create({
               fullname: profile.displayName,
               email,
@@ -60,15 +52,13 @@ passport.use(
   )
 );
 
-// // ================== FACEBOOK STRATEGY ==================
-// ================== FACEBOOK STRATEGY ==================
 passport.use(
   new FacebookStrategy(
     {
       clientID: process.env.FACEBOOK_CLIENT_ID,
       clientSecret: process.env.FACEBOOK_CLIENT_SECRET,
       callbackURL: "http://localhost:8888/auth/facebook/callback",
-      profileFields: ["id", "displayName", "photos", "email"], // Quan trọng để lấy email
+      profileFields: ["id", "displayName", "photos", "email"],
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
@@ -77,13 +67,10 @@ passport.use(
 
         if (!user) {
           user = await User.findOne({ email });
-
           if (user) {
-            // Nếu đã có user với email này, chỉ cập nhật thêm facebookId
             user.facebookId = profile.id;
             await user.save();
           } else {
-            // Nếu chưa có ai dùng email này, tạo user mới
             user = await User.create({
               fullname: profile.displayName,
               email,
@@ -101,7 +88,6 @@ passport.use(
   )
 );
 
-// ================== GITHUB STRATEGY ==================
 passport.use(
   new GitHubStrategy(
     {
@@ -114,20 +100,14 @@ passport.use(
       try {
         const githubId = profile.id;
         const email = profile.emails?.[0]?.value || `${profile.username}@github.com`;
-
-        // Tìm theo githubId trước
         let user = await User.findOne({ githubId });
 
         if (!user) {
-          // Nếu chưa có githubId, kiểm tra xem email đã tồn tại chưa
           user = await User.findOne({ email });
-
           if (user) {
-            // Gộp tài khoản: thêm githubId nếu email đã có
             user.githubId = githubId;
             await user.save();
           } else {
-            // Nếu email cũng chưa có → tạo user mới
             user = await User.create({
               fullname: profile.displayName || profile.username,
               email,
@@ -144,5 +124,3 @@ passport.use(
     }
   )
 );
-
-

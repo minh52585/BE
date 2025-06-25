@@ -1,15 +1,7 @@
 import { Router } from "express";
-import productRoutes from "../routes/productRoute.js";
-import discountRoutes from "../routes/discountRoute.js";
-import categoryRoutes from "../routes/categoryRoute.js";
-
-const routes = Router();
-routes.use("/products", productRoutes);
-routes.use("/discounts", discountRoutes);
-routes.use("/categories", categoryRoutes);
 import authController from "../controllers/authController.js";
 import { verifyToken, isAdmin } from "../middlewares/authMiddleware.js";
-import { sendEmail } from "../utils/sendMail.js";
+import 'dotenv/config';
 import discountRoutes from "./discount.js";
 import orderRoutes from "./order.js";
 import productRoutes from "./product.js";

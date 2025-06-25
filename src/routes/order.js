@@ -1,4 +1,3 @@
-import routes from "./index.js";
 import { Router } from "express";
 import {
     getAllOrders,
@@ -6,14 +5,15 @@ import {
     addOrder,
     updateorder,
     deleteOrder,
-} from "../controllers/orderController.js"
-const routes = Router();
-//API Order
-routes.get("/order", getAllOrders);
-routes.get("/order/:id", getOrderById);
-routes.post("/orders/add", addOrder);
-routes.put("/update/:id", updateorder);
-routes.delete("/delete/:id", deleteOrder);
+} from "../controllers/orderController.js";
+
+const orderRoutes = Router();
+
+// API Order
+orderRoutes.get("/order", getAllOrders);
+orderRoutes.get("/order/:id", getOrderById);
+orderRoutes.post("/orders/add", addOrder);
+orderRoutes.put("/update/:id", updateorder);
+orderRoutes.delete("/delete/:id", deleteOrder);
 
 export default orderRoutes;
-const orderRoutes = routes;

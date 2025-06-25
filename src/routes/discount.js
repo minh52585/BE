@@ -1,5 +1,4 @@
 import { Router } from "express";
-import routes from "./index.js";
 import {
     getAllDiscounts,
     getDiscountById,
@@ -8,14 +7,13 @@ import {
     deleteDiscount,
 } from "../controllers/discountController.js";
 
-const routes = Router();
+const router = Router();
 
-//API discount 
-routes.get("/discounts", getAllDiscounts);
-routes.get("/discounts/:id", getDiscountById);
-routes.post("/discounts/add", addDiscount);
-routes.put("/update/:id", updateDiscount);
-routes.delete("/delete/:id", deleteDiscount);
+// API discount 
+router.get("/discounts", getAllDiscounts);
+router.get("/discounts/:id", getDiscountById);
+router.post("/discounts/add", addDiscount);
+router.put("/update/:id", updateDiscount);
+router.delete("/delete/:id", deleteDiscount);
 
-export default discountRoutes;
-const discountRoutes = routes;
+export default router;
