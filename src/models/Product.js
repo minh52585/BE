@@ -1,6 +1,5 @@
 import mongoose from "mongoose";
 
-// Schema cho từng variant (nếu sản phẩm có biến thể)
 const variantSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -43,12 +42,12 @@ const productSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ["available", "out of stock"],
-      default: "available",
+      enum: ["Sẵn", "Hết"],
+      default: "Sẵn",
     },
     variants: {
       type: [variantSchema],
-      required: false, // Có thể không có variant
+      required: false,
       default: [],
     },
   },
