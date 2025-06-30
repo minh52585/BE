@@ -1,11 +1,11 @@
-import Variant from "../models/variant";
+import Variant from "../models/variant.js"; // Đường dẫn đúng với file model
 
 
 
 // Get all variants
 export const getAllVariants = async (req, res, next) => {
   try {
-    const variants = await Variant.find();
+    const variants = await Variant.find().populate('productId')
     res.status(200).json({
       success: true,
       data: variants
@@ -17,17 +17,22 @@ export const getAllVariants = async (req, res, next) => {
 
 //Addvariant
 export const addVariant = async (req, res, next) => {
-    try {
-        const newVariant = new Variant(req.body);
-        await newVariant.save();
-        res.status(201).json({
-            success: true,
-            data: newVariant
-        });
-    } catch (error) {
-        next(error);
-    }
-}
+  try {
+    const newVariant = new Variant(req.body);
+    await newVariant.save();
+
+    // Populate sau khi lưu
+    const populatedVariant = await Variant.findById(newVariant._id).populate('productId');
+
+    res.status(201).json({
+      success: true,
+      data: populatedVariant
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 // Update variant
 export const updateVariant = async (req, res, next) => {
     try {
@@ -54,6 +59,7 @@ export const updateVariant = async (req, res, next) => {
 // Delete variant
 export const deleteVariant = async (req, res, next) => {
     try {
+        const {id} = req.params
         const deletedVariant = await Variant.findByIdAndDelete(req.params.id);
         if (!deletedVariant) {
             return res.status(404).json({
@@ -69,3 +75,14 @@ export const deleteVariant = async (req, res, next) => {
         next(error);
     }
 }
+export const getVariantById = async (req, res, next) => {
+  try {
+    const variant = await Variant.findById(req.params.id).populate('productId');
+    if (!variant) {
+      return res.status(404).json({ success: false, message: 'Không tìm thấy biến thể' });
+    }
+    res.status(200).json({ success: true, data: variant });
+  } catch (error) {
+    next(error);
+  }
+};

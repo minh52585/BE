@@ -11,6 +11,7 @@ import productRoutes from "./product.js";
 import discountRoutes from "./discount.js";
 import categoryRoutes from "./category.js";
 import orderRoutes from "./order.js";
+import variantRoutes from "./variant.js";
 
 const routes = Router();
 
@@ -19,7 +20,7 @@ routes.use("/products", productRoutes);
 routes.use("/discounts", discountRoutes);
 routes.use("/categories", categoryRoutes);
 routes.use("/orders", orderRoutes);
-routes.use("/variants", orderRoutes);
+routes.use("/variants", variantRoutes);
 
 // Auth routes
 routes.post("/register", authController.register);

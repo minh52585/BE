@@ -5,12 +5,13 @@ import {
     updateVariant,
     deleteVariant,
     getAllVariants,
+    getVariantById,
 } from "../controllers/variantController.js";
-const routes = Router();
+const variantRoutes = Router();
 //API variant
-routes.get("/", getAllVariants);
-routes.post("/add", addVariant);
-routes.put("/:id", updateVariant);
-routes.delete(":id", deleteVariant);
+variantRoutes.get("/", getAllVariants);
+variantRoutes.post("/add", addVariant);
+variantRoutes.put("/:id", updateVariant);
+variantRoutes.delete("/:id", deleteVariant);
+variantRoutes.get("/:id", getVariantById);
 export default variantRoutes;
-const variantRoutes = routes;
