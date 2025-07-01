@@ -167,5 +167,44 @@ export const clearCart = async (req, res, next) => {
     next(err)
   }
 }
+export const checkCartStock = async (req, res, next) => {
+  try {
+    const cart = await Cart.findOne({ user_id: req.user._id })
+      .populate('items.product_id', 'name stock')
+      .populate('items.variant_id', 'format stock_quantity');
+
+    if (!cart || cart.items.length === 0) {
+      return res.status(200).json({ valid: true, message: 'Giỏ hàng trống' });
+    }
+
+    const errors = [];
+
+    for (const item of cart.items) {
+      const productName = item.product_id?.name || 'Sản phẩm không tên';
+      let stock = 0;
+
+      if (item.variant_id) {
+        stock = item.variant_id.stock_quantity;
+        if (item.quantity > stock) {
+          errors.push(`${productName} (${item.variant_id.format}) chỉ còn ${stock} sản phẩm`);
+        }
+      } else {
+        stock = item.product_id.stock;
+        if (item.quantity > stock) {
+          errors.push(`${productName} chỉ còn ${stock} sản phẩm`);
+        }
+      }
+    }
+
+    if (errors.length > 0) {
+      return res.status(400).json({ valid: false, message: 'Một số sản phẩm không đủ hàng', errors });
+    }
+
+    res.json({ valid: true, message: 'Tất cả sản phẩm đều đủ hàng' });
+  } catch (err) {
+    next(err);
+  }
+};
+
 
 
