@@ -55,6 +55,10 @@ default: 'cash'
       enum: ["unpaid", "pending", "paid"],
       default: "unpaid",
     },
+    statusReason: {
+      type: String,
+      default: '',
+    },
     note: String,
     items: [orderItemSchema],
     totalAmount: Number,

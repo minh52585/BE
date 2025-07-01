@@ -134,7 +134,7 @@ export const getOrderById = async (req, res, next) => {
 
 export const updateOrderStatus = async (req, res, next) => {
   try {
-    const { status, paymentStatus } = req.body;
+    const { status, paymentStatus, reason } = req.body;
 
     const order = await Order.findById(req.params.id);
     if (!order) return res.status(404).json({ message: "Không tìm thấy đơn hàng" });
@@ -143,8 +143,19 @@ export const updateOrderStatus = async (req, res, next) => {
       return res.status(403).json({ message: "Không có quyền cập nhật đơn này" });
     }
 
-    if (status) order.status = status;
-    if (paymentStatus) order.paymentStatus = paymentStatus;
+    if (status) {
+      order.status = status;
+
+      // Nếu là trạng thái cancel/refund thì lưu thêm lý do
+      if (["cancelled", "refunded"].includes(status) && reason) {
+        order.statusReason = reason;
+      }
+    }
+
+    if (paymentStatus) {
+      order.paymentStatus = paymentStatus;
+    }
+
     await order.save();
 
     res.status(200).json(order);
@@ -152,6 +163,7 @@ export const updateOrderStatus = async (req, res, next) => {
     next(error);
   }
 };
+
 
 export const deleteOrder = async (req, res, next) => {
   try {
