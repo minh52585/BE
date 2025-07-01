@@ -1,29 +1,78 @@
 import mongoose from "mongoose";
 
-const orderSchema = new mongoose.Schema({
+const orderItemSchema = new mongoose.Schema(
+  {
+    product_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Product",
+      required: true,
+    },
+    variant_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Variant",
+    },
+    name: String,
+    image: String,
+    quantity: {
+      type: Number,
+      required: true,
+    },
+    price: Number,
+  },
+  { _id: false }
+);
+
+const orderSchema = new mongoose.Schema(
+  {
     user_id: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
-        required: true,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+    address: {
+      city: String,
+      district: String,
+      detail: String,
+    },
+    addressNote: String,
+    shippingMethod: {
+      type: String,
+      enum: ["standard", "express"],
+      default: "standard",
+    },
+    paymentMethod:{
+type: String,
+enum: ['cash', 'momo','vnpay'],
+default: 'cash'
     },
     status: {
-        type: String,
-        enum: ["pending", "shipped", "delivered", "cancelled"],
-        required: true,
-        default: "pending"
+      type: String,
+      enum: ["pending", "confirmed", "shipped", "delivered","completed", "cancelled", "refunded"],
+      default: "pending",
     },
-    coupons_id: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Coupon",
-        required: false,
-        default: null,
+    paymentStatus: {
+      type: String,
+      enum: ["unpaid", "pending", "paid"],
+      default: "unpaid",
     },
-    total_amount: {
-        type: Number,
-        required: true,
-        default: 0
-    }
-});
+    note: String,
+    items: [orderItemSchema],
+    totalAmount: Number,
+    shippingFee: {
+      type: Number,
+      default: 0,
+    },
+    discount_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Discount",
+      default: null,
+    },
+  },
+  {
+    timestamps: true,
+    versionKey: false,
+  }
+);
 
-const Order = mongoose.model("Order", orderSchema)
-export default Order
+const Order = mongoose.model("Order", orderSchema);
+export default Order;

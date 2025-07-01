@@ -14,7 +14,11 @@ export const verifyToken = (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
-    req.user = decoded; // Gắn thông tin người dùng vào request
+    req.user = {
+  _id: decoded.userId, // Phải khớp với lúc tạo token
+  email: decoded.email,
+  role: decoded.role,
+};// Gắn thông tin người dùng vào request
     next();
   } catch (error) {
     return res.status(401).json({ message: "Token không hợp lệ hoặc đã hết hạn" });
