@@ -70,14 +70,51 @@ export const getAllOrders = async (req, res, next) => {
     if (req.user.role !== "admin") {
       return res.status(403).json({ message: "Chỉ admin được phép xem tất cả đơn hàng" });
     }
-    const orders = await Order.find()
+
+    let orders = await Order.find()
       .populate("user_id", "fullname email phoneNumber")
-      .populate("discount_id");
+      .populate("discount_id")
+      .lean();
+
+    // ✅ Thu thập toàn bộ productId và variantId từ tất cả orders
+    const productIds = [];
+    const variantIds = [];
+
+    orders.forEach(order => {
+      order.items.forEach(item => {
+        if (item.product_id) productIds.push(item.product_id.toString());
+        if (item.variant_id) variantIds.push(item.variant_id.toString());
+      });
+    });
+
+    // ✅ Lấy thông tin chi tiết
+    const [products, variants] = await Promise.all([
+      Product.find({ _id: { $in: productIds } }, "_id name imageUrl").lean(),
+      Variant.find({ _id: { $in: variantIds } }, "_id format").lean()
+    ]);
+
+    const productMap = new Map(products.map(p => [p._id.toString(), { _id: p._id.toString(), name: p.name, image: p.imageUrl }]));
+    const variantMap = new Map(variants.map(v => [v._id.toString(), { _id: v._id.toString(), format: v.format }]));
+
+    // ✅ Gán lại thông tin đầy đủ cho từng đơn
+    orders = orders.map(order => ({
+      ...order,
+      items: order.items.map(item => ({
+        ...item,
+        product_id: productMap.get(item.product_id?.toString()) || { _id: item.product_id?.toString(), name: '', image: '' },
+        variant_id: item.variant_id
+          ? variantMap.get(item.variant_id?.toString()) || { _id: item.variant_id?.toString(), format: '' }
+          : undefined,
+        image: productMap.get(item.product_id?.toString())?.image || ''
+      }))
+    }));
+
     res.status(200).json(orders);
   } catch (error) {
     next(error);
   }
 };
+
 
 
 
