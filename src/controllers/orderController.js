@@ -176,14 +176,23 @@ export const updateOrderStatus = async (req, res, next) => {
     const order = await Order.findById(req.params.id);
     if (!order) return res.status(404).json({ message: "Không tìm thấy đơn hàng" });
 
+    // 👉 Kiểm tra quyền
     if (req.user.role !== "admin" && order.user_id.toString() !== req.user._id) {
       return res.status(403).json({ message: "Không có quyền cập nhật đơn này" });
     }
 
     if (status) {
+      // ✅ Nếu user xác nhận đã nhận hàng → cho phép cập nhật sang 'completed'
+      if (status === "completed") {
+        // Chỉ cho phép chuyển sang completed nếu đơn hàng đã được giao
+        if (order.status !== "delivered") {
+          return res.status(400).json({ message: "Đơn hàng chưa được giao, không thể xác nhận" });
+        }
+      }
+
       order.status = status;
 
-      // Nếu là trạng thái cancel/refund thì lưu thêm lý do
+      // Nếu là trạng thái huỷ hoặc hoàn tiền thì lưu lý do
       if (["cancelled", "refunded"].includes(status) && reason) {
         order.statusReason = reason;
       }
@@ -194,12 +203,12 @@ export const updateOrderStatus = async (req, res, next) => {
     }
 
     await order.save();
-
     res.status(200).json(order);
   } catch (error) {
     next(error);
   }
 };
+
 
 
 export const deleteOrder = async (req, res, next) => {
