@@ -226,3 +226,47 @@ export const deleteOrder = async (req, res, next) => {
     next(error);
   }
 };
+
+export const getMyOrders = async (req, res, next) => {
+  try {
+    const orders = await Order.find({ user_id: req.user._id })
+      .populate("discount_id")
+      .lean();
+
+    // Lấy product & variant
+    const productIds = [];
+    const variantIds = [];
+    orders.forEach((order) => {
+      order.items.forEach((item) => {
+        if (item.product_id) productIds.push(item.product_id.toString());
+        if (item.variant_id) variantIds.push(item.variant_id.toString());
+      });
+    });
+
+    const [products, variants] = await Promise.all([
+      Product.find({ _id: { $in: productIds } }, "_id name imageUrl").lean(),
+      Variant.find({ _id: { $in: variantIds } }, "_id format").lean(),
+    ]);
+
+    const productMap = new Map(products.map((p) => [p._id.toString(), p]));
+    const variantMap = new Map(variants.map((v) => [v._id.toString(), v]));
+
+    const enrichedOrders = orders.map((order) => ({
+      ...order,
+      items: order.items.map((item) => ({
+        ...item,
+        product_id:
+          productMap.get(item.product_id?.toString()) || item.product_id,
+        variant_id:
+          variantMap.get(item.variant_id?.toString()) || item.variant_id,
+        image:
+          productMap.get(item.product_id?.toString())?.imageUrl || item.image,
+      })),
+    }));
+
+    res.status(200).json(enrichedOrders);
+  } catch (error) {
+    next(error);
+  }
+};
+
