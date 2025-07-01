@@ -2,6 +2,18 @@ import mongoose from "mongoose";
 
 const variantSchema = new mongoose.Schema(
     {
+            productId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Product", 
+      required: true,
+    },
+    sku: {
+  type: String,
+  unique: true, // nhưng nên dùng với partial index nếu không bắt buộc
+  sparse: true  // hoặc dùng `sparse` để tránh lỗi nếu thiếu
+},
+
+
         format: {
             type: String,
             enum: ["Bìa cứng", "Bìa mềm"],
@@ -11,18 +23,15 @@ const variantSchema = new mongoose.Schema(
             type: Number,
             required: true,
         },
-        stock_qauantity: {
+        stock_quantity: {
             type: Number,
             default: 0,
         },
-        image_URL: {
-            type: String,
-            required: true,
-        },
+        
     },
-    {
-        _id: false,
-    }
+     {
+    timestamps: true 
+  }
 );
 const Variant = mongoose.model("Variant", variantSchema);
 export default Variant;

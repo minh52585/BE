@@ -3,18 +3,23 @@ import {
   getAllOrders,
   getOrderById,
   addOrder,
-  updateorder,
+  updateOrderStatus,
   deleteOrder,
 } from "../controllers/orderController.js";
+import { isAdmin, verifyToken } from "../middlewares/authMiddleware.js";
 
-// ✅ Đặt tên đúng, không bị trùng
 const orderRoutes = Router();
 
-// ✅ Routes rõ ràng
-orderRoutes.get("/", getAllOrders);
+orderRoutes.use(verifyToken);
+
+orderRoutes.get("/", isAdmin, getAllOrders);
+
 orderRoutes.get("/:id", getOrderById);
-orderRoutes.post("/add", addOrder);
-orderRoutes.put("/:id", updateorder);
+
+orderRoutes.post("/", addOrder);
+
+orderRoutes.put("/:id", updateOrderStatus);
+
 orderRoutes.delete("/:id", deleteOrder);
 
 export default orderRoutes;
