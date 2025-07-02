@@ -30,7 +30,6 @@ const userSchema = new mongoose.Schema(
       required: true,
       unique: true,
     },
-
     // Với tài khoản đăng ký bằng email/password
     password: {
       type: String,
@@ -39,29 +38,24 @@ const userSchema = new mongoose.Schema(
         return !this.googleId && !this.facebookId && !this.githubId;
       },
     },
-
     phoneNumber: {
       type: String,
-      required: false, // Có thể không có nếu đăng nhập bằng social
+      required: false,
     },
-
     address: [
       {
         type: addressSchema,
         required: false,
       },
     ],
-
     role: {
       type: String,
       enum: ["user", "admin"],
       default: "user",
     },
-
     avatar: {
       type: String,
     },
-
     // OAuth fields
     googleId: {
       type: String,
@@ -78,6 +72,16 @@ const userSchema = new mongoose.Schema(
     versionKey: false,
   }
 );
+
+// Thêm virtual id
+userSchema.virtual("id").get(function () {
+  return this._id.toHexString();
+});
+
+// Đảm bảo virtuals xuất hiện khi chuyển sang JSON
+userSchema.set("toJSON", {
+  virtuals: true,
+});
 
 const User = mongoose.model("User", userSchema);
 

@@ -4,11 +4,14 @@ import {
     addVariant,
     updateVariant,
     deleteVariant,
+    getAllVariants,
+    getVariantById,
 } from "../controllers/variantController.js";
-const routes = Router();
+const variantRoutes = Router();
 //API variant
-routes.post("/variants/add", addVariant);
-routes.put("/variants/update/:id", updateVariant);
-routes.delete("/variants/delete/:id", deleteVariant);
+variantRoutes.get("/", getAllVariants);
+variantRoutes.post("/add", addVariant);
+variantRoutes.put("/:id", updateVariant);
+variantRoutes.delete("/:id", deleteVariant);
+variantRoutes.get("/:id", getVariantById);
 export default variantRoutes;
-const variantRoutes = routes;

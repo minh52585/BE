@@ -1,19 +1,30 @@
-import routes from "./index.js";
 import { Router } from "express";
 import {
-    getAllOrders,
-    getOrderById,
-    addOrder,
-    updateorder,
-    deleteOrder,
-} from "../controllers/orderController.js"
-const routes = Router();
-//API Order
-routes.get("/order", getAllOrders);
-routes.get("/order/:id", getOrderById);
-routes.post("/orders/add", addOrder);
-routes.put("/update/:id", updateorder);
-routes.delete("/delete/:id", deleteOrder);
+  getAllOrders,
+  getOrderById,
+  addOrder,
+  updateOrderStatus,
+  deleteOrder,
+  getMyOrders,
+} from "../controllers/orderController.js";
+import { isAdmin, verifyToken } from "../middlewares/authMiddleware.js";
+
+const orderRoutes = Router();
+
+orderRoutes.use(verifyToken);
+
+orderRoutes.get("/", isAdmin, getAllOrders);
+
+orderRoutes.get("/my-orders", getMyOrders); 
+
+
+orderRoutes.get("/:id", getOrderById);
+
+orderRoutes.post("/", addOrder);
+
+orderRoutes.put("/:id", updateOrderStatus);
+
+orderRoutes.delete("/:id", deleteOrder);
+
 
 export default orderRoutes;
-const orderRoutes = routes;

@@ -4,6 +4,10 @@ const { Schema } = mongoose;
 
 const discountSchema = new Schema(
   {
+    code:{
+      type: String,
+      require: true
+    },
   
     productID: {
       type: String,

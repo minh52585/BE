@@ -1,20 +1,19 @@
-import routes from "./index.js";
 import { Router } from "express";
 import {
-    getAllProducts,
-    getProductById,
-    addProduct,
-    updateProduct,
-    deleteProduct,
+  getAllProducts,
+  getProductById,
+  addProduct,
+  updateProduct,
+  deleteProduct,
 } from "../controllers/productController.js";
 
-const routes = Router();
-//API product
-routes.get("/product", getAllProducts);
-routes.get("/product/:id", getProductById);
-routes.post("/products/add", addProduct);
-routes.put("/update/:id", updateProduct);
-routes.delete("/delete/:id", deleteProduct);
+// Đổi tên biến thành productRoutes để tránh trùng
+const productRoutes = Router();
+
+productRoutes.get("/", getAllProducts);
+productRoutes.get("/:id", getProductById);
+productRoutes.post("/add", addProduct);
+productRoutes.put("/:id", updateProduct);
+productRoutes.delete("/:id", deleteProduct);
 
 export default productRoutes;
-const productRoutes = routes;

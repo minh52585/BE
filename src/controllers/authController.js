@@ -23,62 +23,68 @@ const generateToken = (user) => {
 };
 
 const authController = {
-  register: async (req, res) => {
-    const { fullname, email, password, phoneNumber, address } = req.body;
+ // ...existing code...
+register: async (req, res) => {
+  const { fullname, email, password, phoneNumber, address , role} = req.body;
 
-    try {
-      const existingUser = await User.findOne({ email });
-      if (existingUser) {
-        return res.status(400).json({ message: "Email đã được sử dụng" });
-      }
-
-      const hashedPassword = await bcrypt.hash(password, 10);
-
-      const newUser = new User({
-        fullname,
-        email,
-        password: hashedPassword,
-        phoneNumber,
-        address,
-      });
-
-      await newUser.save();
-
-      res.status(201).json({ message: "Đăng ký thành công" });
-    } catch (error) {
-      res.status(500).json({ message: "Lỗi server", error });
+  try {
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ message: "Email đã được sử dụng" });
     }
-  },
 
-  login: async (req, res) => {
-    const { email, password } = req.body;
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-    try {
-      const user = await User.findOne({ email });
-      if (!user) {
-        return res.status(400).json({ message: "Email không tồn tại" });
-      }
+    const newUser = new User({
+      fullname,
+      email,
+      password: hashedPassword,
+      phoneNumber,
+      address,
+      role: role === "admin" ? "admin" : "user",
+    });
 
-      const isMatch = await bcrypt.compare(password, user.password);
-      if (!isMatch) {
-        return res.status(400).json({ message: "Sai mật khẩu" });
-      }
+    await newUser.save();
 
-      const token = generateToken(user);
+    // Tạo token cho user mới
+    const token = generateToken(newUser);
 
-      res.json({
-        token,
-        user: {
-          fullname: user.fullname,
-          email: user.email,
-          phoneNumber: user.phoneNumber,
-          address: user.address,
-        },
-      });
-    } catch (error) {
-      res.status(500).json({ message: "Lỗi server", error });
+    // Trả về thông tin user (không bao gồm password) và token, có trường id
+    res.status(201).json({
+      message: "Đăng ký thành công",
+      token,
+      user: newUser.toJSON(), // Đảm bảo có trường id
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Lỗi server", error });
+  }
+},
+
+login: async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(400).json({ message: "Email không tồn tại" });
     }
-  },
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(400).json({ message: "Sai mật khẩu" });
+    }
+
+    const token = generateToken(user);
+
+    res.json({
+      token,
+      user: user.toJSON(), // Đảm bảo có trường id
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Lỗi server", error });
+  }
+},
+// ...existing code...
 
   oauthCallback: async (req, res) => {
     const user = req.user; // Passport đã gán user vào req.user
